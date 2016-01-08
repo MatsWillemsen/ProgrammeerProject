@@ -1,11 +1,40 @@
-var riot = require('./riot.js');
+var RiotAPI = require('./riot.js');
 var jsonfile = require('jsonfile');
 var needle = require('needle');
 var _ = require('underscore');
 
 
 var summonerId = 44386842;
+var api = new RiotAPI.api('a2fff1e3-fdad-47e4-a4c8-2b39d2ef9b80');
+var parser = new RiotAPI.parser(api);
+/*
+parser.writeChampionData().then(function(data) {
+  console.log(data);
+}, function(err) {
+  console.error(err);
+})
+*/
+/*
+parser.writeMatchData(summonerId).then(function(data) {
+  console.log(data);
+}, function(err) {
+  console.error(err);
+})
+*/
+parser.parseSeedData().then(function(data) {
+  console.log(data);
+})
+/*
+api.doMethod('league', {
+  region : 'euw',
+  league: 'challenger'
+}).then(function(body) {
+  console.log(body);
+}, function(err) {
+  console.err(err);
+});
 
+/*
 var writeKillData = function(matches, cb) {
   var data = []
   var written = 0
