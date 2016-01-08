@@ -1,5 +1,4 @@
 d3.json('matchdata.json', function(data) {
-  console.log(data.length);
   data.forEach(function(d) {
     d.minute = d.minute;
     d.x = d.xposition;
@@ -41,7 +40,7 @@ d3.json('matchdata.json', function(data) {
   var circlessvg = svg.append('svg:g');
 
   var heatmap = h337.create({
-    container: document.querySelector('#minimap'),
+    container: document.querySelector('#minimap')
   })
   var updateData = function(data) {
     var heatmapdata = [];
@@ -54,6 +53,7 @@ d3.json('matchdata.json', function(data) {
     })
     heatmap.setData({
       max: 120,
+      max: 70,
       data: heatmapdata
     });
     /*
