@@ -9,26 +9,27 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/1.7.5/dc.min.css" media="screen" title="no title" charset="utf-8">
+    <link rel="stylesheet" href="css/style.css">
 
   </head>
   <body>
     <div class="container">
-      <div class="jumbotron">
-        <h1 class="display-3">League of Legends Map</h1>
-        <p class="lead">Dit is voor League of Legends informatie</p>
+      <div class="row">
+        <h1>League of Legends Map</h1>
       </div>
-      <div class="dropdown closed">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="champButton" data-toggle="dropdown">
-          Champion
-        </button>
-        <div class="dropdown-menu" id="championDropdown">
+      <div class="row">
+        <div id="outer" class="col-xs-offset-3">
+          <div id="minimap"></div>
+          <canvas id="canvas" width="512" height="512">
         </div>
-      </div>
-      <div id="minimap" class="col-xs-offset-3">
+        <div id="goldDistribution"></div>
+        <div id="minuteChart" class="col-xs-12"></div>
 
       </div>
-      <div id="goldDistribution"></div>
-      <div id="minuteChart" class="col-xs-offset-1"></div>
+    <div class="row">
+        <div id="champions" class="col-xs-12"></div>
+    </div>
+
       <!--<img src="doc/heatmap1.png" class="img-fluid center-block">-->
     </div>
     <!-- jQuery first, then Bootstrap JS. -->
@@ -38,7 +39,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js" charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dc/1.7.5/dc.min.js" charset="utf-8"></script>
     <!--<script src="js/hexbin.js" charset="utf-8"></script>-->
-    <script src="js/heatmap.min.js"></script>
+    <script src="js/simpleheat.js"></script>
     <script src="js/map.js" charset="utf-8"></script>
   </body>
 </html>

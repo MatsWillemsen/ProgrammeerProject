@@ -7,13 +7,13 @@ var _ = require('underscore');
 var summonerId = 44386842;
 var api = new RiotAPI.api('a2fff1e3-fdad-47e4-a4c8-2b39d2ef9b80');
 var parser = new RiotAPI.parser(api);
-/*
+
 parser.writeChampionData().then(function(data) {
   console.log(data);
 }, function(err) {
   console.error(err);
 })
-*/
+
 /*
 parser.writeMatchData(summonerId).then(function(data) {
   console.log(data);
@@ -21,6 +21,7 @@ parser.writeMatchData(summonerId).then(function(data) {
   console.error(err);
 })
 */
+/*
 parser.parseSeedData().then(function(data) {
   console.log(data);
 })

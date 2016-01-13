@@ -1,4 +1,4 @@
-## Proces 
+## Proces
 
 ### 04-01-2016
 
@@ -11,3 +11,5 @@ Eerste scripts gemaakt om de Riot API uit te kunnen lezen / API key aangevraagd.
 ### 06-01-2016
 
 Kill-data weggeschreven naar bestanden. Via Crossfilter / DC.js eerste grafiek (en dot-map met posities) gemaakt! Geen moeilijkheden uiteindelijk
+
+### 07-01-2016

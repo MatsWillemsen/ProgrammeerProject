@@ -24,7 +24,7 @@ var RiotAPI = class RiotAPI {
       var url = `https://euw.api.pvp.net/api/lol/${args.region}/v2.5/league/${args.league}?type=RANKED_SOLO_5x5&api_key=${this.apikey}`
     }
     else if(method == 'champions') {
-      var url = `https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?api_key=${this.apikey}`
+      var url = `https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion?champData=image&api_key=${this.apikey}`
     }
     this.calls += 1;
     return new Promise(function(resolve, reject) {
@@ -131,7 +131,8 @@ var RiotParser = class RiotParser {
         for(var key in championData.data) {
           champions.push({
             id : championData.data[key].id,
-            name: championData.data[key].name
+            name: championData.data[key].name,
+            image: championData.data[key].image.full
           })
         }
         jsonfile.writeFileSync('champions.json', champions);
