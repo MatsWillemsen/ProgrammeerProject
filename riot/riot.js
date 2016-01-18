@@ -46,6 +46,7 @@ var RiotParser = class RiotParser {
   }
   parseKillFrames(matchdata) {
     var data = [];
+    var golddata = [];
     var playerData = {};
     if(!matchdata.participants) {
       return data;
@@ -57,6 +58,18 @@ var RiotParser = class RiotParser {
     });
     if(matchdata.timeline) {
       matchdata.timeline.frames.forEach(function(frame, minute) {
+        if(frame.participantFrames) {
+          var minuteGold = 0;
+          for(var index in frame.participantFrames) {
+            var curFrame = frame.participantFrames[index];
+            minuteGold += curFrame.totalGold;
+          }
+          golddata.push({
+            league: 'silver',
+            minute: minute,
+            gold: minuteGold
+          })
+        }
         if(frame.events) {
           frame.events.forEach(function(event) {
             if(event.eventType == 'CHAMPION_KILL') {
@@ -76,10 +89,11 @@ var RiotParser = class RiotParser {
         }
       })
     }
-    return data;
+    return [data, golddata];
   }
   getKillData(matches) {
     var data = [];
+    var golddata = [];
     var written = 0;
     var that = this;
     return new Promise(function(resolve, reject) {
@@ -88,7 +102,8 @@ var RiotParser = class RiotParser {
           region: 'euw',
           matchid: match
         }).then(function(matchdata) {
-          data = data.concat(that.parseKillFrames(matchdata));
+          let parsed = that.parseKillFrames(matchdata);
+          data = data.concat(parsed);
           written += 1;
           console.log(written, matches.length);
           if(written >= matches.length - 5) {
@@ -148,10 +163,16 @@ var RiotParser = class RiotParser {
       jsonfile.readFile('riot/matches1.json', function(err, matches) {
         matches = matches.matches;
         var data = [];
+        var golddata = [];
         matches.forEach(function(match) {
-          data = data.concat(that.parseKillFrames(match));
+          let parsed = that.parseKillFrames(match);
+          let matchdata = parsed[0]
+          let gdata = parsed[1]
+          data = data.concat(matchdata);
+          golddata = golddata.concat(gdata);
         })
         jsonfile.writeFileSync('matchdata.json', data);
+        jsonfile.writeFileSync('golddata.json', golddata);
         resolve(data);
       })
     })
@@ -159,33 +180,3 @@ var RiotParser = class RiotParser {
 }
 exports.api = RiotAPI;
 exports.parser = RiotParser;
-
-/*
-exports.getMatchInfo = function(region,matchid, cb) {
-  var url = util.format('https://euw.api.pvp.net/api/lol/%s/v2.2/match/%d?includeTimeline=true&api_key=%s', region, matchid, apikey);
-  request.get({url : url, json: true}, function(err, response, body) {
-    cb(err, response, body);
-  });
-}
-
-exports.getPlayerLeague = function(region, player, cb) {
-  var url = util.format('https://euw.api.pvp.net/api/lol/%s/v2.5/league/by-summoner/%d?includeTimeline=true&api_key=%s', region, player, apikey);
-  request.get({url : url, json: true}, function(err, response, body) {
-    cb(err, response, body);
-  });
-}
-
-exports.getMatchList = function(region, player, cb) {
-  var url = util.format('https://euw.api.pvp.net/api/lol/%s/v2.2/matchlist/by-summoner/%d?rankedQueues=RANKED_SOLO_5x5&api_key=%s', region, player, apikey);
-  request.get({url : url, json: true}, function(err, response, body) {
-    cb(err, response, body);
-  });
-}
-
-exports.getLeague = function(region, league, cb) {
-  var url = util.format('https://euw.api.pvp.net/api/lol/%s/v2.5/league/%s?type=RANKED_SOLO_5x5&api_key=%s', region, league, apikey);
-  console.log(url);
-  request.get({url : url, json: true}, function(err, response, body) {
-    cb(err, response, body);
-  });
-}*/
