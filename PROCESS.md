@@ -25,4 +25,10 @@ Heatmap efficiënter gemaakt. Moeilijk deze dynamisch te maken op aantal kills.
 Andere library gebruikt voor de heatmap. Veel sneller nu, en mogelijk om dynamisch de max-min op te kunnen geven. Aantal acties / 525 blijkt een goede formule hiervoor te zijn (voor de radius, ceil naar 1.0)
 
 ### 13-01-2016
-Code opgeschoond. Voornamelijk ES6 code gebruikt nu. Maakt het mogelijk om classes te gebruiken, promises, eigenlijk alles wat nuttig is voor dit project
+Code opgeschoond. Voornamelijk ES6 code gebruikt nu. Maakt het mogelijk om classes te gebruiken, promises, eigenlijk alles wat nuttig is voor dit project.
+
+### 14-01-2016 tot 18-01-2016
+Script geschreven om ook positie-data te kunnen verwerken van alle champions. Dit was uiteindelijk moeilijk, omdat deze geheel anders in de timeline terecht komen. Mogelijkheid gemaakt om meerdere heatmaps toe te voegen
+
+### 19-01-2016 tot 21-01-2016
+Design geheel omgeschreven. Verhaal-aspect meer naar voren laten komen. Design-document wordt aankomende week op basis hiervan gewijzigd. Systeem is nu in plaats van een dashboard een 'stappenplan', met meer uitleg per stap over het spel. Zorgt voor meer duidelijkheid.

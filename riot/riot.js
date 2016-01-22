@@ -44,16 +44,49 @@ var RiotParser = class RiotParser {
   constructor(api) {
     this.api = api;
   }
+  getTeamLeague(participants) {
+    let leagues = ["UNRANKED", "BRONZE", "SILVER", "GOLD","PLATINUM","DIAMOND","MASTER"]
+    let scores = []
+    participants.forEach(function(participant) {
+      let score = leagues.indexOf(participant.highestAchievedSeasonTier)
+      if(score > -1) {
+        scores.push(score);
+      }
+    })
+    let avgScore = scores.reduce( (p, c) => p + c, 0) / scores.length;
+    return leagues[Math.ceil(avgScore)]
+  }
   parseKillFrames(matchdata) {
     var data = [];
     var golddata = [];
+    var positiondata = [];
     var playerData = {};
+    var league = this.getTeamLeague(matchdata.participants);
     if(!matchdata.participants) {
       return data;
     }
     matchdata.participants.forEach(function(participant) {
+      var role = "";
+      if(participant.timeline.role){
+        if(participant.timeline.role == "DUO_CARRY")
+        {
+          role = "ADC"
+        }
+        else if(participant.timeline.role == "DUO_SUPPORT")
+        {
+          role = "SUPPORT";
+          console.log('SUPPORT', participant);
+        }
+        else {
+          role = participant.timeline.lane
+        }
+      }
+      else {
+        console.log('NO ROLE', participant);
+      }
       playerData[participant.participantId] = {
-        champion: participant.championId
+        champion: participant.championId,
+        role: role
       }
     });
     if(matchdata.timeline) {
@@ -62,34 +95,60 @@ var RiotParser = class RiotParser {
           var minuteGold = 0;
           for(var index in frame.participantFrames) {
             var curFrame = frame.participantFrames[index];
+            if(curFrame.position) {
+              positiondata.push({
+                league: league,
+                minute: minute,
+                xposition: curFrame.position.x,
+                yposition: curFrame.position.y,
+                champion: playerData[curFrame.participantId].champion,
+                role: playerData[curFrame.participantId].role
+              })              
+            }
             minuteGold += curFrame.totalGold;
           }
           golddata.push({
-            league: 'silver',
+            league: league,
             minute: minute,
             gold: minuteGold
           })
+
         }
         if(frame.events) {
           frame.events.forEach(function(event) {
             if(event.eventType == 'CHAMPION_KILL') {
               if(event.killerId != 0) {
                 data.push({
-                  league: 'silver',
+                  league: league,
                   minute: minute,
                   type: 'kill',
                   xposition: event.position.x,
                   yposition: event.position.y,
                   killerchamp: playerData[event.killerId].champion,
-                  victimchamp: playerData[event.victimId].champion
+                  victimchamp: playerData[event.victimId].champion,
+                  role: playerData[event.killerId].role
                 });
+              }
+              if(event.assistingParticipantIds) {
+                event.assistingParticipantIds.forEach(function(participant) {
+                  data.push({
+                    league: league,
+                    minute: minute,
+                    type: 'assist',
+                    xposition: event.position.x,
+                    yposition: event.position.y,
+                    killerchamp: playerData[participant].champion,
+                    victimchamp: playerData[event.victimId].champion,
+                    role: playerData[participant].role
+                  })
+                })
               }
             }
           })
         }
       })
     }
-    return [data, golddata];
+    return [data, golddata, positiondata];
   }
   getKillData(matches) {
     var data = [];
@@ -164,15 +223,19 @@ var RiotParser = class RiotParser {
         matches = matches.matches;
         var data = [];
         var golddata = [];
+        var positiondata = [];
         matches.forEach(function(match) {
           let parsed = that.parseKillFrames(match);
           let matchdata = parsed[0]
           let gdata = parsed[1]
+          let pdata = parsed[2]
           data = data.concat(matchdata);
           golddata = golddata.concat(gdata);
+          positiondata = positiondata.concat(pdata);
         })
         jsonfile.writeFileSync('matchdata.json', data);
         jsonfile.writeFileSync('golddata.json', golddata);
+        jsonfile.writeFileSync('positions.json', positiondata);
         resolve(data);
       })
     })

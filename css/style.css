@@ -1,13 +1,13 @@
-#canvas {
+.minimapcanvas {
   position: absolute;
   top: 0;
   left: 20;
 }
-#outer {
+.outer {
   position: relative;
 }
-.dc-chart g.axis text {
-  fill: white;
+body {
+  padding-top: 70px;
 }
 span.twitter-typeahead .tt-menu,
 span.twitter-typeahead .tt-dropdown-menu {

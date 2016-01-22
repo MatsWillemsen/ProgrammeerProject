@@ -1,12 +1,49 @@
+class RiotHeatmap {
+  constructor(id) {
+    this.root = $('<div style="position: relative;"></div>');
+    this.root.appendTo($(id));
+    this.minimapdiv = $('<div></div>');
+    this.minimapdiv.appendTo(this.root);
+    this.minimapcanvas = $('<canvas style="position: absolute; top: 0; left: 20;" width="512" height="512"></canvas>');
+    this.minimapcanvas.appendTo(this.root);
+    this.heatmap = simpleheat(this.minimapcanvas[0]);
+    this.addImage();
+  }
+  addImage() {
+    d3.select(this.minimapdiv[0]).append('svg:svg')
+      .attr('width', 512)
+      .attr('height', 512)
+      .append('image')
+        .attr('xlink:href', 'https://s3-us-west-1.amazonaws.com/riot-api/img/minimap-ig.png')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', 512)
+        .attr('height', 512)
+  }
+  addData(data) {
+    this.heatmap.data(data);
+    this.heatmap.max(Math.ceil(data.length / 525));
+    if(data.length < 5000) {
+      this.heatmap.radius(8,16)
+    }
+    else {
+      this.heatmap.radius(5, 10);
+    }
+    this.heatmap.draw();
+  }
+
+}
+
 class LeagueMap {
   constructor() {
     this.cf = {}
     this.cfg = {}
+    this.cfp = {}
     this.d3 = {}
     this.charts = {}
     this.selectedChampion = 0;
   }
-  prepare(data, golddata) {
+  prepare(data, golddata, positiondata) {
     this.d3.domain = {
       min: {x: -120, y: -120},
       max: {x: 14870, y: 14980}
@@ -17,14 +54,34 @@ class LeagueMap {
     this.d3.yscale = d3.scale.linear()
       .domain([this.d3.domain.min.y, this.d3.domain.max.y])
       .range([512, 0])
+
+    positiondata.forEach(d => {
+      d.minute = d.minute,
+      d.x = this.d3.xscale(d.xposition),
+      d.y = this.d3.yscale(d.yposition)
+      d.value = 1
+    });
     data.forEach(d => {
       d.minute = d.minute,
       d.x = this.d3.xscale(d.xposition),
       d.y = this.d3.yscale(d.yposition),
-      d.value = 1;
+      d.value = 1
     });
     this.cf.dx = crossfilter(data);
     this.cfg.dx = crossfilter(golddata);
+    this.cfp.dx = crossfilter(positiondata);
+
+
+    this.cfp.dim = {
+      minute: this.cfp.dx.dimension(d => d.minute),
+      champion: this.cfp.dx.dimension(d => d.champion),
+      role: this.cfp.dx.dimension(d => d.role),
+      league: this.cfp.dx.dimension(d => d.league)
+    }
+    this.cfp.grp = {
+      minute: this.cfp.dim.minute.group(),
+    }
+
     this.cfg.dim = {
       minute: this.cfg.dx.dimension(d => d.minute),
       gold: this.cfg.dx.dimension(d => d.gold)
@@ -38,14 +95,16 @@ class LeagueMap {
         if(d.minute < 15) return "Early";
         if(d.minute >= 15 && d.minute <= 25) return "Mid";
         else return "End";        
-      })
+      }),
+      role: this.cf.dx.dimension(d => d.role),
+      league: this.cf.dx.dimension(d => d.league)
     }
     this.cf.grp = {
       minute : this.cf.dim.minute.group(),
       period : this.cf.dim.period.group().reduceSum(d => d.value)
     }
     this.cfg.grp = {
-      gold: this.cfg.dim.gold.group().reduce((p,v) => {
+      gold: this.cfg.dim.minute.group().reduce((p,v) => {
         ++p.fights
         p.total += (v.gold)
         p.avg = Math.round(p.total / p.fights)
@@ -84,16 +143,18 @@ class LeagueMap {
       .attr('height', 50)
       .on('click', (d, i) => {
         this.cf.dim.killchampion.filterExact(d.id);
+        this.cfp.dim.champion.filterExact(d.id);
         this.selectedChampion = d.id;
         this.updateData();
         dc.redrawAll();
       })
   }
-  loadData(championfile, matchdata, golddata) {
+  loadData(championfile, matchdata, golddata, positiondata) {
     return Promise.all([
       this.loadFile(championfile),
       this.loadFile(matchdata),
-      this.loadFile(golddata)
+      this.loadFile(golddata),
+      this.loadFile(positiondata)
     ])
   }
   createCharts() {
@@ -113,8 +174,9 @@ class LeagueMap {
       this.charts.action
       .width(document.querySelector('#minuteChart').clientWidth)
       .height(50)
-      .margins({top: 0, right: 0, bottom: 20, left: 0})
+      .margins({top: 0, right: 0, bottom: 20, left: 20})
       .on('filtered', (d,i) => {
+        this.cfp.dim.minute.filter(i);
         this.updateData()
       })
       .dimension(this.cf.dim.minute)
@@ -126,18 +188,18 @@ class LeagueMap {
       .yAxis().ticks(0)
       
     this.charts.gold = dc.lineChart('#goldDistribution');
-      this.charts.gold.renderArea(true)
-      .width(document.querySelector('#goldDistribution').clientWidth)
+      this.charts.gold.width(document.querySelector('#goldDistribution').clientWidth)
+      .margins({top: 0, right: 0, bottom: 20, left: 50})
       .height(200)
       .transitionDuration(1000)
       .dimension(this.cfg.dim.minute)
       .mouseZoomable(false)
       .x(d3.scale.linear().domain([0,50]))
-      .elasticY(true)
+      .elasticY(false)
       .renderHorizontalGridLines(true)
       .brushOn(false)
       .group(this.cfg.grp.gold, 'Gold value')
-      .valueAccessor((d) => { return d.value.avg})
+      .valueAccessor(d => d.value.avg)
 
     dc.renderAll();
   }
@@ -153,7 +215,9 @@ class LeagueMap {
         .attr('height', 512)
   }
   loadHeatMap() {
-     this.heat = simpleheat('canvas');
+     //this.heat = simpleheat('canvas');
+     this.killheat = new RiotHeatmap('#killData');
+     this.positionheat = new RiotHeatmap('#positionData');
   }
   animate() {
     let currentTime = 0;
@@ -167,20 +231,20 @@ class LeagueMap {
       if(currentTime == 50) {
         currentTime = 0;
       }
-      window.setTimeout(doAnimation, 200);
+      window.setTimeout(doAnimation, 500);
     }
-    doAnimation();
+    //doAnimation();
   }
   onload() {
-    this.loadData('champions.json', 'matchdata.json', 'golddata.json').then((data) => {
-      let [champions, matches, gold] = data;
-      this.prepare(matches, gold);
-      this.cf.dim.type.filter('kill');
+    this.loadData('champions.json', 'matchdata.json', 'golddata.json','positions.json').then((data) => {
+      let [champions, matches, gold, positions] = data;
+      this.prepare(matches, gold, positions);
       this.createCharts();
       this.loadMiniMap();
       this.loadHeatMap();
       this.updateData();
       this.loadChampions(champions);
+
       let that = this;
       let ta = $('.typeahead').typeahead({
         hint: true,
@@ -194,6 +258,30 @@ class LeagueMap {
           local: champions.map((d) => d.name)
         })
       });
+      $('button[data-role]').click(function() {
+
+        if($(this).attr('data-role') == "ADC")
+        {
+          let filter = (d) => { return d == "BOTTOM" || d == "ADC"}
+          that.cf.dim.role.filter(filter);
+          that.cfp.dim.role.filter(filter);
+        }
+        else if($(this).attr('data-role') == "SUPPORT") {
+          let filter = (d) => { return d == "BOTTOM" || d == "SUPPORT"}
+          that.cf.dim.role.filter(filter);
+          that.cfp.dim.role.filter(filter);
+        }
+        else {
+          that.cf.dim.role.filterExact($(this).attr('data-role'));
+          that.cfp.dim.role.filterExact($(this).attr('data-role'));
+        }
+        that.updateData();
+      });
+      $('button[data-league]').click(function() {
+        that.cf.dim.league.filterExact($(this).attr('data-league'));
+        that.cfp.dim.league.filterExact($(this).attr('data-league'));
+        that.updateData();
+      })
       $('form.championpicker').submit(function() {
         let champ = $('.typeahead:nth-of-type(2)').val();
         return false;
@@ -215,14 +303,11 @@ class LeagueMap {
   }
   updateData() {
     let data = this.cf.dim.minute.top(Infinity);
-    let heatmapdata = [];
-    data.forEach(function(data) {
-      heatmapdata.push([
-        data.x,
-        data.y,
-        data.value
-      ])
-    })
+    let positiondata = this.cfp.dim.minute.top(Infinity);
+
+    this.killheat.addData(data);
+    this.positionheat.addData(positiondata)
+    /*
     this.heat.clear();
     this.heat.data(heatmapdata);
     this.heat.max(Math.ceil(data.length / 525));
@@ -232,7 +317,7 @@ class LeagueMap {
     else {
       this.heat.radius(5, 10);
     }
-    this.heat.draw();
+    this.heat.draw();*/
   }
 }
 

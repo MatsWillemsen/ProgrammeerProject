@@ -23,7 +23,6 @@ parser.writeMatchData(summonerId).then(function(data) {
 */
 
 parser.parseSeedData().then(function(data) {
-  console.log(data);
 })
 /*
 api.doMethod('league', {
