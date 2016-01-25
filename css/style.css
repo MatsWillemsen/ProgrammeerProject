@@ -1,7 +1,94 @@
+.stat-ad {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -0px;
+}
+.stat-armor {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -25px;
+}
+.stat-as {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -50px;
+}
+.stat-ms {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -75px;
+}
+.stat-ap {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -100px;
+}
+.stat-mr {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -125px;
+}
+.stat-health {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -150px;
+}
+.stat-healthregen {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -175px;
+}
+.stat-mana {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -200px;
+}
+.stat-manaregen {
+  background: url("http://cdn.leagueoflegends.com/game-info/1.1.9/css/resources/images/stat-icons-sprite.png") no-repeat 0 -225px;
+}
+button[data-league="BRONZE"] {
+  background-color: #CD7F32;
+  border-color: #CD7F32;
+}
+button[data-league="SILVER"] {
+  background-color: #C0C0C0;
+  border-color: #C0C0C0;
+}
+button[data-league="GOLD"] {
+  background-color: #FFD700;
+  border-color: #FFD700;
+}
+button[data-league="PLATINUM"] {
+  background-color: #E5E4E2;
+  border-color: #E5E4E2;
+}
+button[data-league="DIAMOND"] {
+  background-color: white;
+  border-color: white
+}
+.spinner {
+  min-height: 200px;
+}
+#stap1 button {
+  color: black;
+}
+.stat {
+  padding-left: 30px;
+}
 .minimapcanvas {
   position: absolute;
   top: 0;
   left: 20;
+}
+.champportrait {
+  border: 0 none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+.champportrait .caption {
+  width: 100%;
+  bottom: .1rem;
+  position: absolute;
+  opacity: 0.5;
+  background: #000;
+  height: 20px;
+}
+.champportrait .caption span {
+  color: gold;
+  font-size: 11px;
+}
+.champions {
+  display: none;
+}
+.championinfo .portrait {
+  width: 50px;
+  height: 50px;
+}
+.championinfo .spells. popover {
+  width: 50%;
 }
 .outer {
   position: relative;
