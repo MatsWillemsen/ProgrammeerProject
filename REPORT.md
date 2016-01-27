@@ -1,11 +1,3 @@
----
-author:
-- Mats Willemsen
-title: Visualisatie van League of Legends data
-...
-
-<span>2</span>
-
 Introductie
 ===========
 
