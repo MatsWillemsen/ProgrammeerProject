@@ -32,3 +32,6 @@ Script geschreven om ook positie-data te kunnen verwerken van alle champions. Di
 
 ### 19-01-2016 tot 21-01-2016
 Design geheel omgeschreven. Verhaal-aspect meer naar voren laten komen. Design-document wordt aankomende week op basis hiervan gewijzigd. Systeem is nu in plaats van een dashboard een 'stappenplan', met meer uitleg per stap over het spel. Zorgt voor meer duidelijkheid.
+
+### 21-02-2016 tot 28-01-2016
+Veel bezig geweest met het implementeren van het stappenplan. Champion zoek-scherm toegevoegd. Meerdere visualisaties vergelijken toegevoegd. Ook bezig geweest met animaties tussen de verschillende elementen.
